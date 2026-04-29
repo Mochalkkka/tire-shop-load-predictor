@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Прогноз загрузки шиномонтажа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .help-text {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Прогноз загрузки шиномонтажа</h1>
+        <p class="subtitle">Система прогнозирования на основе поисковой активности</p>
+        
+        <div class="info-box">
+            <p><strong>📋 Как использовать:</strong> Введите параметры вашего сервиса, выберите период прогноза и получите рекомендации по оптимальной загрузке постов.</p>
+        </div>
+
+        <form action="/predict" method="get">
+            <div class="row">
+                <div class="form-group">
+                    <label for="boxes">🔩 Количество постов (боксов):</label>
+                    <input type="number" id="boxes" name="boxes" min="1" max="20" value="3" required>
+                    <div class="help-text">Сколько рабочих мест в вашем сервисе</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mu">⚡ Производительность одного поста:</label>
+                    <input type="number" id="mu" name="mu" min="0.5" max="10" step="0.5" value="3" required>
+                    <div class="help-text">Сколько машин в час обслуживает один пост</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="start_month">📅 Начальный месяц:</label>
+                    <select id="start_month" name="start_month" required>
+                        <option value="0">Январь</option>
+                        <option value="1">Февраль</option>
+                        <option value="2" selected>Март</option>
+                        <option value="3">Апрель</option>
+                        <option value="4">Май</option>
+                        <option value="5">Июнь</option>
+                        <option value="6">Июль</option>
+                        <option value="7">Август</option>
+                        <option value="8">Сентябрь</option>
+                        <option value="9">Октябрь</option>
+                        <option value="10">Ноябрь</option>
+                        <option value="11">Декабрь</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="months">⏳ Период прогноза:</label>
+                    <select id="months" name="months" required>
+                        <option value="3">3 месяца</option>
+                        <option value="6" selected>6 месяцев</option>
+                        <option value="12">12 месяцев</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="conversion">📊 Конверсия запросов (%):</label>
+                    <input type="number" id="conversion" name="conversion" min="1" max="100" step="1" value="10" required>
+                    <div class="help-text">Какой % от поисковых запросов становятся клиентами</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="work_hours">🕐 Часов работы в день:</label>
+                    <input type="number" id="work_hours" name="work_hours" min="1" max="24" value="10" required>
+                    <div class="help-text">Сколько часов в день работает сервис</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">🚀 Рассчитать прогноз</button>
+        </form>
+    </div>
+</body>
+</html>
