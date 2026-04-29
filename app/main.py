@@ -1,33 +1,29 @@
-from fastapi import FastAPI, Request, HTTPException
+# app/main.py
+from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
-from datetime import date
 import os
 
-from app.model.ensemble import EnsemblePredictor
-from app.model.smo import find_optimal_n
+from app.model.predictor import ModelPredictor
+from app.model.smo import find_optimal_n, mmn_metrics
 
-app = FastAPI(title="🔧 Шиномонтаж Прогноз")
+app = FastAPI(title="Прогноз загрузки шиномонтажа")
 
-# 🔹 Шаблоны
+# Шаблоны
 templates = Jinja2Templates(directory="app/templates")
 
-# 🔹 Загрузка моделей
+# Загрузка модели PyTorch
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "model.pth")
-LINEAR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "linear_model.pkl")
-
 if not os.path.exists(MODEL_PATH):
-    raise RuntimeError(f"❌ Файл модели не найден: {MODEL_PATH}")
-if not os.path.exists(LINEAR_PATH):
-    raise RuntimeError(f"❌ Файл линейной модели не найден: {LINEAR_PATH}")
+    raise RuntimeError(f"❌ Файл модели не найден: {MODEL_PATH}\nЗапусти: python scripts/train.py")
 
-predictor = EnsemblePredictor(MODEL_PATH, LINEAR_PATH)
+predictor = ModelPredictor(MODEL_PATH)
 
-# 🔹 Главная страница
+# Главная страница
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request=request, name="index.html", context={})
 
-# 🔹 Страница с результатами
+# Страница результатов
 @app.get("/predict")
 def predict_page(
     request: Request,
@@ -38,7 +34,7 @@ def predict_page(
     conversion: float = 10.0,
     work_hours: int = 10
 ):
-    # Прогноз
+    # Прогноз запросов
     forecast_requests = predictor.forecast(steps=12)
     forecast_requests = forecast_requests[start_month:start_month + months]
     
@@ -50,38 +46,40 @@ def predict_page(
     current_month_idx = start_month
     days_in_month = 30
     
-    for i, requests in enumerate(forecast_requests):
+    for requests in forecast_requests:
         clients_per_month = requests * (conversion / 100)
         lambda_hour = clients_per_month / (work_hours * days_in_month)
         n_opt, metrics = find_optimal_n(lambda_hour, mu)
         
         results.append({
             "month_name": month_names[current_month_idx],
-            "forecast_requests": round(requests),
+            "forecast_requests": int(round(requests)),
             "lambda_per_hour": round(lambda_hour, 4),
-            "optimal_boxes": n_opt if n_opt else "-",
-            "avg_wait_minutes": round(metrics["Wq"] * 60, 2) if metrics else "-",
+            "optimal_boxes": n_opt if n_opt else 1,
+            "avg_wait_minutes": round(metrics["Wq"] * 60, 2) if metrics else 0,
             "utilization_percent": round(metrics["rho"] * 100, 1) if metrics else 0
         })
         current_month_idx = (current_month_idx + 1) % 12
     
-    # ✅ ИСПРАВЛЕННЫЙ возврат шаблона:
-    return templates.TemplateResponse(
-        request,
-        "result.html",
-        {
-            "results": results,
-            "params": {
-                "boxes": boxes,
-                "mu": mu,
-                "months": months,
-                "work_hours": work_hours,
-                "conversion": conversion
-            }
+    # Контекст БЕЗ request
+    context = {
+        "results": results,
+        "params": {
+            "boxes": boxes,
+            "mu": mu,
+            "months": months,
+            "work_hours": work_hours,
+            "conversion": conversion
         }
+    }
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="result.html",
+        context=context
     )
 
-# 🔹 API endpoint (без изменений)
+# API (без шаблонов — тут всё ок)
 @app.get("/api/predict")
 def predict_api(
     boxes: int = 3,
@@ -92,15 +90,14 @@ def predict_api(
     days_in_month: int = 30
 ):
     forecast_requests = predictor.forecast(steps=months)
-    
     results = []
-    for i, requests in enumerate(forecast_requests):
+    
+    for requests in forecast_requests:
         clients_per_month = requests * conversion_rate
         lambda_hour = clients_per_month / (work_hours * days_in_month)
         n_opt, metrics = find_optimal_n(lambda_hour, mu)
         
         results.append({
-            "month_offset": i + 1,
             "forecast_requests": round(requests),
             "lambda_per_hour": round(lambda_hour, 4),
             "optimal_boxes": n_opt,
@@ -108,13 +105,4 @@ def predict_api(
             "utilization_percent": round(metrics["rho"] * 100, 1) if metrics else None
         })
     
-    return {
-        "status": "success",
-        "parameters": {
-            "boxes": boxes,
-            "mu": mu,
-            "conversion_rate": conversion_rate,
-            "work_hours": work_hours
-        },
-        "results": results
-    }
+    return {"status": "success", "results": results}
