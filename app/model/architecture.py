@@ -1,8 +1,14 @@
+# app/model/architecture.py
 import torch
 import torch.nn as nn
 
 class TimeSeriesNet(nn.Module):
-    """Простая сеть для прогноза временных рядов"""
+    """
+    Простая полносвязная нейросеть для прогнозирования временных рядов.
+    
+    Архитектура: 12 → 32 → 16 → 1
+    """
+    
     def __init__(self, input_size=12, hidden_size=32, output_size=1):
         super().__init__()
         self.net = nn.Sequential(
@@ -14,4 +20,13 @@ class TimeSeriesNet(nn.Module):
         )
     
     def forward(self, x):
+        """
+        Прямой проход.
+        
+        Args:
+            x: входной тензор [batch_size, input_size]
+        
+        Returns:
+            прогноз [batch_size]
+        """
         return self.net(x).squeeze(-1)
