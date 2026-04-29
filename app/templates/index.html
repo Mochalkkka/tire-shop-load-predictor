@@ -3,167 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔧 Прогноз загрузки шиномонтажа</title>
+    <title>Прогноз загрузки шиномонтажа</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        h1 {
-            text-align: center;
+            background: #f5f5f5;
             color: #333;
-            margin-bottom: 10px;
-            font-size: 2em;
+            line-height: 1.6;
         }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+        
+        .header {
+            background: #2c2c2c;
+            color: #fff;
+            padding: 20px 0;
+            border-bottom: 3px solid #4a4a4a;
         }
-        .form-group {
-            margin-bottom: 25px;
+        
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
+        
+        .header h1 {
+            font-size: 24px;
             font-weight: 600;
+            margin-bottom: 5px;
         }
-        input, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+        
+        .header p {
+            font-size: 14px;
+            color: #aaa;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
-        .row {
+        
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-bottom: 15px;
         }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            background: #fff;
+            color: #333;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #666;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #333;
+            color: #fff;
             border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            border-radius: 10px;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 3px;
             cursor: pointer;
             width: 100%;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
         }
+        
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            background: #444;
         }
-        .info-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
+        
+        .info-block {
+            background: #f9f9f9;
+            border-left: 3px solid #666;
             padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 5px;
+            margin-bottom: 20px;
         }
-        .info-box p {
-            color: #555;
-            line-height: 1.6;
-        }
-        .help-text {
+        
+        .info-block p {
             font-size: 13px;
-            color: #888;
-            margin-top: 5px;
+            color: #666;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔧 Прогноз загрузки шиномонтажа</h1>
-        <p class="subtitle">Система прогнозирования на основе поисковой активности</p>
-        
-        <div class="info-box">
-            <p><strong>📋 Как использовать:</strong> Введите параметры вашего сервиса, выберите период прогноза и получите рекомендации по оптимальной загрузке постов.</p>
+    <div class="header">
+        <div class="header-content">
+            <h1>Система прогнозирования загрузки сервиса</h1>
+            <p>Дипломный проект | 2026</p>
         </div>
-
-        <form action="/predict" method="get">
-            <div class="row">
-                <div class="form-group">
-                    <label for="boxes">🔩 Количество постов (боксов):</label>
-                    <input type="number" id="boxes" name="boxes" min="1" max="20" value="3" required>
-                    <div class="help-text">Сколько рабочих мест в вашем сервисе</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="mu">⚡ Производительность одного поста:</label>
-                    <input type="number" id="mu" name="mu" min="0.5" max="10" step="0.5" value="3" required>
-                    <div class="help-text">Сколько машин в час обслуживает один пост</div>
-                </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-title">Параметры сервиса</div>
+            
+            <div class="info-block">
+                <p>Введите данные вашего шиномонтажного сервиса для расчёта прогнозируемой загрузки и оптимального количества рабочих постов.</p>
             </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="start_month">📅 Начальный месяц:</label>
-                    <select id="start_month" name="start_month" required>
-                        <option value="0">Январь</option>
-                        <option value="1">Февраль</option>
-                        <option value="2" selected>Март</option>
-                        <option value="3">Апрель</option>
-                        <option value="4">Май</option>
-                        <option value="5">Июнь</option>
-                        <option value="6">Июль</option>
-                        <option value="7">Август</option>
-                        <option value="8">Сентябрь</option>
-                        <option value="9">Октябрь</option>
-                        <option value="10">Ноябрь</option>
-                        <option value="11">Декабрь</option>
-                    </select>
+            
+            <form action="/predict" method="get">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="boxes">Количество постов (боксов)</label>
+                        <input type="number" id="boxes" name="boxes" min="1" max="20" value="3" required>
+                        <div class="help-text">Рабочих мест в сервисе</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mu">Производительность одного поста</label>
+                        <input type="number" id="mu" name="mu" min="0.5" max="10" step="0.5" value="3" required>
+                        <div class="help-text">Машин в час</div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="months">⏳ Период прогноза:</label>
-                    <select id="months" name="months" required>
-                        <option value="3">3 месяца</option>
-                        <option value="6" selected>6 месяцев</option>
-                        <option value="12">12 месяцев</option>
-                    </select>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_month">Начальный месяц прогноза</label>
+                        <select id="start_month" name="start_month" required>
+                            <option value="0">Январь</option>
+                            <option value="1">Февраль</option>
+                            <option value="2">Март</option>
+                            <option value="3">Апрель</option>
+                            <option value="4">Май</option>
+                            <option value="5">Июнь</option>
+                            <option value="6">Июль</option>
+                            <option value="7">Август</option>
+                            <option value="8">Сентябрь</option>
+                            <option value="9">Октябрь</option>
+                            <option value="10">Ноябрь</option>
+                            <option value="11">Декабрь</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="months">Период прогноза</label>
+                        <select id="months" name="months" required>
+                            <option value="3">3 месяца</option>
+                            <option value="6" selected>6 месяцев</option>
+                            <option value="12">12 месяцев</option>
+                        </select>
+                    </div>
                 </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="conversion">Конверсия запросов (%)</label>
+                        <input type="number" id="conversion" name="conversion" min="1" max="100" step="1" value="10" required>
+                        <div class="help-text">Доля запросов, ставших клиентами</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="work_hours">Часов работы в день</label>
+                        <input type="number" id="work_hours" name="work_hours" min="1" max="24" value="10" required>
+                        <div class="help-text">Режим работы сервиса</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Рассчитать прогноз</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">О системе</div>
+            <div class="info-block">
+                <p><strong>Модель прогнозирования:</strong> Нейронная сеть PyTorch (точность 92.45%)</p>
+                <p style="margin-top: 8px;"><strong>Данные:</strong> Агрегированная статистика Яндекс.Wordstat (2018-2024)</p>
+                <p style="margin-top: 8px;"><strong>Метод:</strong> Теория массового обслуживания (M/M/n)</p>
             </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="conversion">📊 Конверсия запросов (%):</label>
-                    <input type="number" id="conversion" name="conversion" min="1" max="100" step="1" value="10" required>
-                    <div class="help-text">Какой % от поисковых запросов становятся клиентами</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="work_hours">🕐 Часов работы в день:</label>
-                    <input type="number" id="work_hours" name="work_hours" min="1" max="24" value="10" required>
-                    <div class="help-text">Сколько часов в день работает сервис</div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn">🚀 Рассчитать прогноз</button>
-        </form>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Дипломный проект | Кафедра информационных систем | 2026</p>
     </div>
 </body>
 </html>
