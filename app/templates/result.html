@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Результаты прогноза</title>
+    <!-- Локальный Chart.js -->
+    <script src="{{ url_for('static', path='/chart.umd.min.js') }}"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -18,17 +20,9 @@
             padding: 20px 0;
             border-bottom: 3px solid #4a4a4a;
         }
-        .header-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
         .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         .card {
             background: #fff;
             border: 1px solid #ddd;
@@ -73,6 +67,11 @@
         }
         .param-label { font-size: 12px; color: #888; }
         .param-value { font-size: 16px; font-weight: 600; color: #333; margin-top: 3px; }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -90,9 +89,6 @@
             font-weight: 500;
         }
         tr:hover { background: #f9f9f9; }
-        .status-ok { color: #2e7d32; font-weight: 500; }
-        .status-warning { color: #f57c00; font-weight: 500; }
-        .status-danger { color: #c62828; font-weight: 500; }
         .footer {
             text-align: center;
             padding: 20px;
@@ -123,7 +119,7 @@
             <div class="params">
                 <div class="params-grid">
                     <div class="param-item">
-                        <div class="param-label">Постов</div>
+                        <div class="param-label">Боксов</div>
                         <div class="param-value">{{ params.boxes }}</div>
                     </div>
                     <div class="param-item">
@@ -131,14 +127,21 @@
                         <div class="param-value">{{ params.mu }} маш/час</div>
                     </div>
                     <div class="param-item">
-                        <div class="param-label">Часов в день</div>
-                        <div class="param-value">{{ params.work_hours }}</div>
+                        <div class="param-label">Период</div>
+                        <div class="param-value">{{ params.start_date }} — {{ params.end_date }}</div>
                     </div>
                     <div class="param-item">
                         <div class="param-label">Конверсия</div>
                         <div class="param-value">{{ params.conversion }}%</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📈 Визуализация прогноза</div>
+            <div class="chart-container">
+                <canvas id="forecastChart"></canvas>
             </div>
         </div>
 
@@ -150,10 +153,9 @@
                         <th>Месяц</th>
                         <th>Запросы</th>
                         <th>λ (час)</th>
-                        <th>Постов</th>
+                        <th>Боксов</th>
                         <th>Ожидание</th>
                         <th>Загрузка</th>
-                        <th>Статус</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,15 +167,6 @@
                         <td>{{ r.optimal_boxes }}</td>
                         <td>{{ r.avg_wait_minutes }} мин</td>
                         <td>{{ r.utilization_percent }}%</td>
-                        <td>
-                            {% if r.utilization_percent < 70 %}
-                                <span class="status-ok">✅ Норма</span>
-                            {% elif r.utilization_percent < 90 %}
-                                <span class="status-warning">⚠️ Нагрузка</span>
-                            {% else %}
-                                <span class="status-danger">🔴 Перегрузка</span>
-                            {% endif %}
-                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -184,5 +177,77 @@
     <div class="footer">
         <p>Дипломный проект | 2026</p>
     </div>
+
+    <script>
+        // Код графика (оставь как был)
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        const labels = [{% for r in results %}'{{ r.month_name }}',{% endfor %}];
+        const requests = [{% for r in results %}{{ r.forecast_requests }},{% endfor %}];
+        const utilization = [{% for r in results %}{{ r.utilization_percent }},{% endfor %}];
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Прогноз запросов',
+                        data: requests,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y',
+                        order: 2
+                    },
+                    {
+                        label: 'Загрузка боксов (%)',
+                        data: utilization,
+                        type: 'line',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.dataset.type === 'line') {
+                                    label += context.parsed.y.toFixed(1) + '%';
+                                } else {
+                                    label += context.parsed.y.toLocaleString('ru-RU');
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: 'Количество запросов' },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: 'Загрузка (%)' },
+                        beginAtZero: true, max: 100,
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

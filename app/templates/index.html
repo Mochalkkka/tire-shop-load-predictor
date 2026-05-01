@@ -5,49 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Прогноз загрузки шиномонтажа</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
             color: #333;
             line-height: 1.6;
         }
-        
         .header {
             background: #2c2c2c;
             color: #fff;
             padding: 20px 0;
             border-bottom: 3px solid #4a4a4a;
         }
-        
         .header-content {
             max-width: 900px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            font-size: 14px;
-            color: #aaa;
-        }
-        
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
+        .header p { font-size: 14px; color: #aaa; }
         .container {
             max-width: 900px;
             margin: 30px auto;
             padding: 0 20px;
         }
-        
         .card {
             background: #fff;
             border: 1px solid #ddd;
@@ -55,7 +37,6 @@
             padding: 25px;
             margin-bottom: 20px;
         }
-        
         .card-title {
             font-size: 18px;
             font-weight: 600;
@@ -64,18 +45,13 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
         }
-        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 15px;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
+        .form-group { margin-bottom: 15px; }
         label {
             display: block;
             font-size: 13px;
@@ -83,7 +59,6 @@
             color: #555;
             margin-bottom: 6px;
         }
-        
         input, select {
             width: 100%;
             padding: 10px 12px;
@@ -93,19 +68,12 @@
             background: #fff;
             color: #333;
         }
-        
         input:focus, select:focus {
             outline: none;
             border-color: #666;
             box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
         }
-        
-        .help-text {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
-        
+        .help-text { font-size: 12px; color: #888; margin-top: 4px; }
         .btn {
             background: #333;
             color: #fff;
@@ -118,23 +86,14 @@
             width: 100%;
             margin-top: 10px;
         }
-        
-        .btn:hover {
-            background: #444;
-        }
-        
+        .btn:hover { background: #444; }
         .info-block {
             background: #f9f9f9;
             border-left: 3px solid #666;
             padding: 15px;
             margin-bottom: 20px;
         }
-        
-        .info-block p {
-            font-size: 13px;
-            color: #666;
-        }
-        
+        .info-block p { font-size: 13px; color: #666; }
         .footer {
             text-align: center;
             padding: 20px;
@@ -143,12 +102,16 @@
             border-top: 1px solid #ddd;
             margin-top: 40px;
         }
-        
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        .date-range-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px 15px;
+            border-radius: 3px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #856404;
         }
+        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -162,52 +125,37 @@
     <div class="container">
         <div class="card">
             <div class="card-title">Параметры сервиса</div>
-            
             <div class="info-block">
-                <p>Введите данные вашего шиномонтажного сервиса для расчёта прогнозируемой загрузки и оптимального количества рабочих постов.</p>
+                <p>Введите данные вашего шиномонтажного сервиса для расчёта прогнозируемой загрузки и оптимального количества рабочих боксов.</p>
             </div>
-            
             <form action="/predict" method="get">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="boxes">Количество постов (боксов)</label>
+                        <label for="boxes">Количество боксов</label>
                         <input type="number" id="boxes" name="boxes" min="1" max="20" value="3" required>
                         <div class="help-text">Рабочих мест в сервисе</div>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="mu">Производительность одного поста</label>
+                        <label for="mu">Производительность одного бокса</label>
                         <input type="number" id="mu" name="mu" min="0.5" max="10" step="0.5" value="3" required>
                         <div class="help-text">Машин в час</div>
                     </div>
                 </div>
                 
+                <div class="date-range-info">
+                    📅 <strong>Период прогноза:</strong> от 1 до 24 месяцев. Рекомендуется выбирать 6-12 месяцев для наиболее точного прогноза.
+                </div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="start_month">Начальный месяц прогноза</label>
-                        <select id="start_month" name="start_month" required>
-                            <option value="0">Январь</option>
-                            <option value="1">Февраль</option>
-                            <option value="2">Март</option>
-                            <option value="3">Апрель</option>
-                            <option value="4">Май</option>
-                            <option value="5">Июнь</option>
-                            <option value="6">Июль</option>
-                            <option value="7">Август</option>
-                            <option value="8">Сентябрь</option>
-                            <option value="9">Октябрь</option>
-                            <option value="10">Ноябрь</option>
-                            <option value="11">Декабрь</option>
-                        </select>
+                        <label for="start_date">Дата начала прогноза</label>
+                        <input type="month" id="start_date" name="start_date" required>
+                        <div class="help-text">Месяц, с которого начинается прогноз</div>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="months">Период прогноза</label>
-                        <select id="months" name="months" required>
-                            <option value="3">3 месяца</option>
-                            <option value="6" selected>6 месяцев</option>
-                            <option value="12">12 месяцев</option>
-                        </select>
+                        <label for="end_date">Дата окончания прогноза</label>
+                        <input type="month" id="end_date" name="end_date" required>
+                        <div class="help-text">Месяц, которым заканчивается прогноз</div>
                     </div>
                 </div>
                 
@@ -217,7 +165,6 @@
                         <input type="number" id="conversion" name="conversion" min="1" max="100" step="1" value="10" required>
                         <div class="help-text">Доля запросов, ставших клиентами</div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="work_hours">Часов работы в день</label>
                         <input type="number" id="work_hours" name="work_hours" min="1" max="24" value="10" required>
@@ -232,9 +179,9 @@
         <div class="card">
             <div class="card-title">О системе</div>
             <div class="info-block">
-                <p><strong>Модель прогнозирования:</strong> Нейронная сеть PyTorch (точность 92.45%)</p>
-                <p style="margin-top: 8px;"><strong>Данные:</strong> Агрегированная статистика Яндекс.Wordstat (2018-2024)</p>
-                <p style="margin-top: 8px;"><strong>Метод:</strong> Теория массового обслуживания (M/M/n)</p>
+                <p><strong>Модель:</strong> Нейронная сеть PyTorch + сезонная коррекция (точность 92.45%)</p>
+                <p style="margin-top:8px;"><strong>Данные:</strong> Яндекс.Wordstat (2018-2024, 7 запросов)</p>
+                <p style="margin-top:8px;"><strong>Метод:</strong> Теория массового обслуживания (M/M/n)</p>
             </div>
         </div>
     </div>
@@ -242,5 +189,30 @@
     <div class="footer">
         <p>Дипломный проект | Кафедра информационных систем | 2026</p>
     </div>
+
+    <script>
+        // Устанавливаем минимальную дату (следующий месяц)
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const minDate = nextMonth.toISOString().slice(0, 7);
+        
+        // Устанавливаем максимальную дату (24 месяца вперед)
+        const maxDate = new Date(today.getFullYear() + 2, today.getMonth(), 1).toISOString().slice(0, 7);
+        
+        document.getElementById('start_date').min = minDate;
+        document.getElementById('start_date').max = maxDate;
+        document.getElementById('start_date').value = minDate;
+        
+        document.getElementById('end_date').min = minDate;
+        document.getElementById('end_date').max = maxDate;
+        
+        // Автоматически ставим конец на 6 месяцев после начала
+        document.getElementById('start_date').addEventListener('change', function() {
+            const startDate = new Date(this.value + '-01');
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + 5);
+            document.getElementById('end_date').value = endDate.toISOString().slice(0, 7);
+        });
+    </script>
 </body>
 </html>
