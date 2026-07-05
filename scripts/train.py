@@ -20,11 +20,11 @@ MODEL_PATH = os.path.join(PROJECT_ROOT, "model.pth")
 LINEAR_PATH = os.path.join(PROJECT_ROOT, "linear_model.pkl")
 
 print("="*60)
-print("🧠 ОБУЧЕНИЕ МОДЕЛИ ПРОГНОЗИРОВАНИЯ")
+print("?? ОБУЧЕНИЕ МОДЕЛИ ПРОГНОЗИРОВАНИЯ")
 print("="*60)
 
 # 1. Загрузка данных
-print("\n📊 Загрузка данных...")
+print("\n?? Загрузка данных...")
 data = load_and_prepare_csv(CSV_PATH, seq_len=12)
 
 print(f"   Всего записей: {len(data['y']) + 12}")
@@ -38,17 +38,17 @@ dataset = TensorDataset(X, y)
 loader = DataLoader(dataset, batch_size=16, shuffle=True)
 
 # 3. Создание модели
-print("\n🧠 Создание модели...")
+print("\n?? Создание модели...")
 model = TimeSeriesNet(input_size=12, hidden_size=32)
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-print(f"   Архитектура: 12 → 32 → 16 → 1")
+print(f"   Архитектура: 12 > 32 > 16 > 1")
 print(f"   Функция потерь: MSE")
 print(f"   Оптимизатор: Adam (lr=0.001)")
 
 # 4. Обучение
-print("\n🚀 Обучение (500 эпох)...")
+print("\n?? Обучение (500 эпох)...")
 for epoch in range(500):
     model.train()
     total_loss = 0
@@ -64,8 +64,8 @@ for epoch in range(500):
         avg_loss = total_loss / len(loader)
         print(f"   Epoch {epoch+1}/500, Loss: {avg_loss:.4f}")
 
-# 5. 🔹 Вычисляем сезонные коэффициенты из данных
-print("\n📊 Вычисление сезонных коэффициентов...")
+# 5. ?? Вычисляем сезонные коэффициенты из данных
+print("\n?? Вычисление сезонных коэффициентов...")
 
 df_raw = pd.read_csv(CSV_PATH, sep=';', encoding='utf-8')
 df_raw['Число запросов'] = pd.to_numeric(
@@ -88,7 +88,7 @@ df_raw['month'] = df_raw['Период'].apply(parse_month).astype(int)
 monthly_avg = df_raw.groupby('month')['Число запросов'].mean()
 overall_avg = df_raw['Число запросов'].mean()
 
-# 🔹 УСИЛЕННЫЕ сезонные коэффициенты (возводим в степень 1.5)
+# ?? УСИЛЕННЫЕ сезонные коэффициенты (возводим в степень 1.5)
 # Это делает пики выше, а спады глубже
 raw_factors = (monthly_avg / overall_avg).to_dict()
 seasonal_factors = {m: f ** 1.5 for m, f in raw_factors.items()}
@@ -101,36 +101,123 @@ print("   Сезонные коэффициенты (усиленные):")
 month_names = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек']
 for m in range(1, 13):
     factor = seasonal_factors.get(m, 1.0)
-    status = "🔺" if factor > 1.2 else "🔻" if factor < 0.8 else "◼"
+    status = "??" if factor > 1.2 else "??" if factor < 0.8 else "?"
     print(f"   {month_names[m-1]}: {factor:.2f} {status}")
 # 6. Сохранение модели PyTorch (с сезонностью!)
-print("\n💾 Сохранение модели...")
+print("\n?? Сохранение модели...")
 torch.save({
     'model_state_dict': model.state_dict(),
     'scaler': data['scaler'],
     'seq_len': 12,
     'last_sequence': data['last_sequence'],
-    'seasonal_factors': seasonal_factors,  # ← Сезонность
-    'overall_avg': overall_avg,  # ← Среднее значение
+    'seasonal_factors': seasonal_factors,  # < Сезонность
+    'overall_avg': overall_avg,  # < Среднее значение
 }, MODEL_PATH)
 
-print(f"✅ Модель PyTorch сохранена: {MODEL_PATH}")
-print(f"📏 Размер файла: {os.path.getsize(MODEL_PATH) // 1024} КБ")
+print(f"? Модель PyTorch сохранена: {MODEL_PATH}")
+print(f"?? Размер файла: {os.path.getsize(MODEL_PATH) // 1024} КБ")
 
 # 7. Обучение линейной модели
-print("\n📈 Обучение линейной модели...")
+print("\n?? Обучение линейной модели...")
 lm = LinearTrendModel()
 lm.fit(data['y'])
 lm.save(LINEAR_PATH)
-print(f"✅ Линейная модель сохранена: {LINEAR_PATH}")
+print(f"? Линейная модель сохранена: {LINEAR_PATH}")
 
 # 8. Итог
 print("\n" + "="*60)
-print("✅ ОБУЧЕНИЕ ЗАВЕРШЕНО")
+print("? ОБУЧЕНИЕ ЗАВЕРШЕНО")
 print("="*60)
-print(f"\n📁 Файлы:")
+print(f"\n?? Файлы:")
 print(f"   • {MODEL_PATH}")
 print(f"   • {LINEAR_PATH}")
-print(f"\n🚀 Для запуска сервера:")
+print(f"\n?? Для запуска сервера:")
 print(f"   uvicorn app.main:app --reload")
 print("="*60)
+
+
+# app/model/predictor.py
+import torch
+import numpy as np
+from app.model.architecture import TimeSeriesNet
+
+class ModelPredictor:
+    """
+    Прогнозирование спроса с учётом сезонности.
+    
+    Загружает модель и сезонные коэффициенты из model.pth
+    """
+    
+    def __init__(self, model_path: str):
+        """
+        Инициализация предсказателя.
+        
+        Args:
+            model_path: Путь к файлу model.pth
+        """
+        checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+        
+        self.seq_len = checkpoint['seq_len']
+        self.scaler = checkpoint['scaler']
+        self.last_sequence = np.array(checkpoint['last_sequence'])
+        
+        # ?? Сезонные коэффициенты из данных
+        self.seasonal_factors = checkpoint.get('seasonal_factors', {})
+        self.overall_avg = checkpoint.get('overall_avg', 1.0)
+        
+        # Создание и загрузка модели
+        self.model = TimeSeriesNet(input_size=self.seq_len)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.model.eval()
+    
+    def _get_seasonal_factor(self, month_idx: int) -> float:
+        """
+        Получить сезонный коэффициент для месяца.
+        
+        Args:
+            month_idx: Индекс месяца (0=январь, 11=декабрь)
+        
+        Returns:
+            Коэффициент сезонности
+        """
+        return self.seasonal_factors.get(month_idx + 1, 1.0)
+    
+    def forecast(self, steps: int = 12, start_month: int = 0, 
+                 apply_seasonality: bool = True) -> list:
+        """
+        Прогноз на steps месяцев вперёд.
+        
+        Args:
+            steps: Количество месяцев для прогноза
+            start_month: Начальный месяц (0=январь, 11=декабрь)
+            apply_seasonality: Применять сезонную коррекцию
+        
+        Returns:
+            Список прогнозов запросов на каждый месяц
+        """
+        predictions = []
+        current_seq = self.last_sequence.copy()
+        
+        with torch.no_grad():
+            for i in range(steps):
+                # Нормализованный вход
+                x_input = torch.tensor(current_seq, dtype=torch.float32).unsqueeze(0)
+                
+                # Прогноз модели (в нормализованном виде)
+                pred_norm = self.model(x_input).item()
+                
+                # Обратная нормализация > реальное число запросов
+                pred_real = self.scaler.inverse_transform([[pred_norm]])[0][0]
+                
+                # ?? Применяем сезонный коэффициент
+                if apply_seasonality:
+                    month_idx = (start_month + i) % 12
+                    factor = self._get_seasonal_factor(month_idx)
+                    pred_real = pred_real * factor
+                
+                predictions.append(float(pred_real))
+                
+                # Сдвиг окна
+                current_seq = np.append(current_seq[1:], [pred_norm])
+        
+        return predictions

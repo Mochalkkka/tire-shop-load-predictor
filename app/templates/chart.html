@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты тестирования модели</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            padding: 30px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 25px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .chart-container {
+            position: relative;
+            height: 450px;
+        }
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .metric {
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .metric-value.good { color: #27ae60; }
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">📊 Сравнение фактических и прогнозируемых значений (тестовая выборка, 12 месяцев)</div>
+        <div class="chart-container">
+            <canvas id="testChart"></canvas>
+        </div>
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-label">MAPE</div>
+                <div class="metric-value">6,23%</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Точность</div>
+                <div class="metric-value good">93,77%</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">MAE</div>
+                <div class="metric-value">141,93</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">RMSE</div>
+                <div class="metric-value">228,17</div>
+            </div>
+        </div>
+        <p class="footer-note">Тестовая выборка: апрель 2025 – март 2026 (данные не участвовали в обучении)</p>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('testChart').getContext('2d');
+
+        // Данные из таблицы 2.3 диплома
+        const labels = [
+            'Апр 25', 'Май 25', 'Июн 25', 'Июл 25', 'Авг 25', 'Сен 25',
+            'Окт 25', 'Ноя 25', 'Дек 25', 'Янв 26', 'Фев 26', 'Мар 26'
+        ];
+
+        // Фактические значения
+        const actual = [4321, 2069, 1460, 1322, 1227, 1312, 5382, 3001, 1219, 985, 793, 1985];
+
+        // Прогнозные значения
+        const predicted = [3691, 2475, 1499, 1283, 1374, 1282, 5468, 3126, 1140, 949, 787, 1903];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Факт',
+                        data: actual,
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',  // Зелёный
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    },
+                    {
+                        label: 'Прогноз',
+                        data: predicted,
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',  // Синий
+                        borderColor: 'rgba(41, 128, 185, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { size: 13, weight: '600' },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(44, 62, 80, 0.95)',
+                        padding: 12,
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                label += context.parsed.y.toLocaleString('ru-RU') + ' запросов';
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 12 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Количество поисковых запросов',
+                            font: { size: 13, weight: '600' }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: {
+                            font: { size: 11 },
+                            callback: function(value) {
+                                return value.toLocaleString('ru-RU');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

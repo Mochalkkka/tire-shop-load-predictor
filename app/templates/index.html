@@ -11,6 +11,9 @@
             background: #f5f5f5;
             color: #333;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Чтобы футер был прижат к низу даже при малом контенте */
         }
         .header {
             background: #2c2c2c;
@@ -24,11 +27,11 @@
             padding: 0 20px;
         }
         .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
-        .header p { font-size: 14px; color: #aaa; }
         .container {
             max-width: 900px;
             margin: 30px auto;
             padding: 0 20px;
+            flex: 1; /* Растягивает контейнер, толкая футер вниз */
         }
         .card {
             background: #fff;
@@ -87,21 +90,6 @@
             margin-top: 10px;
         }
         .btn:hover { background: #444; }
-        .info-block {
-            background: #f9f9f9;
-            border-left: 3px solid #666;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .info-block p { font-size: 13px; color: #666; }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #999;
-            border-top: 1px solid #ddd;
-            margin-top: 40px;
-        }
         .date-range-info {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -111,6 +99,27 @@
             font-size: 13px;
             color: #856404;
         }
+        /* Стили для футера */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            background: #f9f9f9;
+            margin-top: auto; /* Гарантирует прижатие к низу */
+        }
+        .author-name {
+            font-weight: 600;
+            color: #555;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .project-info {
+            font-style: italic;
+            font-size: 13px;
+            color: #999;
+        }
         @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -118,15 +127,15 @@
     <div class="header">
         <div class="header-content">
             <h1>Система прогнозирования загрузки сервиса</h1>
-            <p>Дипломный проект | 2026</p>
+            <!-- Убрали "Дипломный проект" отсюда -->
         </div>
     </div>
     
     <div class="container">
         <div class="card">
             <div class="card-title">Параметры сервиса</div>
-            <div class="info-block">
-                <p>Введите данные вашего шиномонтажного сервиса для расчёта прогнозируемой загрузки и оптимального количества рабочих боксов.</p>
+            <div style="margin-bottom: 20px; font-size: 14px; color: #666;">
+                Введите данные вашего шиномонтажного сервиса для расчёта прогнозируемой загрузки и оптимального количества рабочих боксов.
             </div>
             <form action="/predict" method="get">
                 <div class="form-row">
@@ -143,19 +152,19 @@
                 </div>
                 
                 <div class="date-range-info">
-                    📅 <strong>Период прогноза:</strong> от 1 до 24 месяцев. Рекомендуется выбирать 6-12 месяцев для наиболее точного прогноза.
+                    📅 <strong>Период прогноза:</strong> от 1 до 24 месяцев. Рекомендуется выбирать 6-12 месяцев.
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="start_date">Дата начала прогноза</label>
                         <input type="month" id="start_date" name="start_date" required>
-                        <div class="help-text">Месяц, с которого начинается прогноз</div>
+                        <div class="help-text">Месяц начала</div>
                     </div>
                     <div class="form-group">
                         <label for="end_date">Дата окончания прогноза</label>
                         <input type="month" id="end_date" name="end_date" required>
-                        <div class="help-text">Месяц, которым заканчивается прогноз</div>
+                        <div class="help-text">Месяц окончания</div>
                     </div>
                 </div>
                 
@@ -176,18 +185,13 @@
             </form>
         </div>
         
-        <div class="card">
-            <div class="card-title">О системе</div>
-            <div class="info-block">
-                <p><strong>Модель:</strong> Нейронная сеть PyTorch + сезонная коррекция (точность 92.45%)</p>
-                <p style="margin-top:8px;"><strong>Данные:</strong> Яндекс.Wordstat (2018-2024, 7 запросов)</p>
-                <p style="margin-top:8px;"><strong>Метод:</strong> Теория массового обслуживания (M/M/n)</p>
-            </div>
-        </div>
+        <!-- Убрали блок "О системе", чтобы было чище -->
     </div>
     
+    <!-- Футер с автором внизу -->
     <div class="footer">
-        <p>Дипломный проект | Кафедра информационных систем | 2026</p>
+        <span class="author-name">Автор: Екатерина Мочалова</span>
+        <span class="project-info">Дипломный проект | 2026</span>
     </div>
 
     <script>

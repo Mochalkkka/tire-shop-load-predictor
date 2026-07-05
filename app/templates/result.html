@@ -23,6 +23,8 @@
         .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
         .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 5px; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Стили карточек как в index.html */
         .card {
             background: #fff;
             border: 1px solid #ddd;
@@ -31,7 +33,7 @@
             margin-bottom: 20px;
         }
         .card-title {
-            font-size: 18px;
+            font-size: 20px; /* Увеличенный шрифт */
             font-weight: 600;
             color: #222;
             margin-bottom: 20px;
@@ -46,6 +48,8 @@
             font-size: 14px;
         }
         .back-link:hover { text-decoration: underline; }
+        
+        /* Сетка параметров */
         .params {
             background: #f9f9f9;
             border: 1px solid #ddd;
@@ -64,22 +68,48 @@
             padding: 10px;
             border: 1px solid #eee;
             border-radius: 3px;
+            text-align: center;
         }
-        .param-label { font-size: 12px; color: #888; }
-        .param-value { font-size: 16px; font-weight: 600; color: #333; margin-top: 3px; }
+        .param-label { font-size: 12px; color: #888; text-transform: uppercase; }
+        .param-value { font-size: 18px; font-weight: 600; color: #333; margin-top: 5px; }
+
+        /* KPI Карточки (новые) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+        }
+        .kpi-label { font-size: 13px; color: #777; margin-bottom: 8px; text-transform: uppercase; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #2c2c2c; margin-bottom: 5px; }
+        .kpi-sub { font-size: 13px; color: #555; }
+        .text-good { color: #27ae60; font-weight: 600; }
+        .text-bad { color: #c0392b; font-weight: 600; }
+        .text-warn { color: #f39c12; font-weight: 600; }
+
+        /* График */
         .chart-container {
             position: relative;
             height: 400px;
             margin: 20px 0;
         }
+
+        /* Таблица и Тултипы */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
+            margin-top: 25px;
+            font-size: 15px; /* Увеличенный шрифт таблицы */
         }
         th, td {
-            padding: 12px;
+            padding: 14px 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -87,8 +117,84 @@
             background: #333;
             color: #fff;
             font-weight: 500;
+            position: relative; /* Важно для тултипа! */
+            cursor: help;
         }
         tr:hover { background: #f9f9f9; }
+        
+        /* Стили тултипа (всплывашки) */
+        .tooltip-text {
+            visibility: hidden;
+            width: 240px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 10px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%; /* Появляется сверху */
+            left: 50%;
+            margin-left: -120px; /* Центрирование */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.4;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            pointer-events: none;
+        }
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        th:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Бейджи */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+
+        /* Экспорт панель */
+        .export-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .btn-export {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-export:hover { background: #444; }
+
         .footer {
             text-align: center;
             padding: 20px;
@@ -98,7 +204,7 @@
             margin-top: 40px;
         }
         @media print {
-            .header, .footer, .back-link { display: none; }
+            .header, .footer, .back-link, .btn-export { display: none; }
             body { background: #fff; }
             .card { box-shadow: none; border: 1px solid #999; }
         }
@@ -114,6 +220,7 @@
     <div class="container">
         <a href="/" class="back-link">← Вернуться к форме</a>
         
+        <!-- Параметры расчёта -->
         <div class="card">
             <div class="card-title">Параметры расчёта</div>
             <div class="params">
@@ -138,6 +245,42 @@
             </div>
         </div>
 
+        <!-- KPI Dashboard (Упрощенный стиль) -->
+        {% set max_load = results | map(attribute='utilization_percent') | max %}
+        {% set avg_wait = (results | map(attribute='avg_wait_minutes') | sum) / (results | length) %}
+        {% set peak_month = results | selectattr('utilization_percent', 'equalto', max_load) | first %}
+        
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Пиковая загрузка</div>
+                <div class="kpi-value">{{ "%.1f"|format(max_load) }}%</div>
+                <div class="kpi-sub {% if max_load > 80 %}text-bad{% elif max_load > 50 %}text-warn{% else %}text-good{% endif %}">
+                    в {{ peak_month.month_name }}
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Ср. время ожидания</div>
+                <div class="kpi-value">{{ "%.1f"|format(avg_wait) }} мин</div>
+                <div class="kpi-sub {% if avg_wait > 10 %}text-bad{% elif avg_wait > 5 %}text-warn{% else %}text-good{% endif %}">
+                    по периоду
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Требуется боксов</div>
+                <div class="kpi-value">{{ results | map(attribute='optimal_boxes') | max }}</div>
+                <div class="kpi-sub text-good">для нормы (<15 мин)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Статус системы</div>
+                <div class="kpi-value" style="font-size: 22px; line-height: 36px;">
+                    {% if max_load > 85 %}<span class="text-bad">Критично</span>
+                    {% elif max_load > 70 %}<span class="text-warn">Внимание</span>
+                    {% else %}<span class="text-good">Норма</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- График прогноза -->
         <div class="card">
             <div class="card-title">📈 Визуализация прогноза</div>
             <div class="chart-container">
@@ -145,17 +288,88 @@
             </div>
         </div>
 
+        <!-- Рекомендации экспертной системы -->
+        {% if conclusions %}
         <div class="card">
-            <div class="card-title">Прогноз по месяцам</div>
+            <div class="card-title">Заключение системы поддержки решений</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                {% for item in conclusions %}
+                <div style="
+                    padding: 15px; 
+                    border-left: 5px solid 
+                    {% if item.severity == 'high' %} #c0392b
+                    {% elif item.severity == 'medium' %} #f39c12
+                    {% elif item.severity == 'low' %} #2980b9
+                    {% else %} #27ae60
+                    {% endif %};
+                    background: #f8f9fa;
+                ">
+                    <h4 style="margin: 0 0 8px 0; font-size: 16px; color: #333;">
+                        {{ item.title }}
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #555; line-height: 1.5;">
+                        {{ item.description }}
+                    </p>
+                    <div style="
+                        background: #fff; 
+                        padding: 10px; 
+                        border-radius: 4px; 
+                        font-size: 13px; 
+                        color: #2c3e50;
+                        border: 1px solid #eee;
+                    ">
+                        <strong>Рекомендация:</strong> {{ item.action }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Панель экспорта и заголовок таблицы -->
+        <div class="export-panel">
+            <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #2c3e50;">
+                    Детальный прогноз
+                </h3>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: #7f8c8d;">
+                    Расчет метрик СМО (M/M/n) по месяцам
+                </p>
+            </div>
+            <a href="/export-excel?start_date={{ params.start_date }}&end_date={{ params.end_date }}&boxes={{ params.boxes }}&mu={{ params.mu }}&conversion={{ params.conversion }}&work_hours={{ params.work_hours }}" class="btn-export">
+                📥 Экспорт в Excel
+            </a>
+        </div>
+
+        <!-- Таблица прогноза -->
+        <div class="card" style="border-top: none; padding-top: 15px;">
             <table>
                 <thead>
                     <tr>
-                        <th>Месяц</th>
-                        <th>Запросы</th>
-                        <th>λ (час)</th>
-                        <th>Боксов</th>
-                        <th>Ожидание</th>
-                        <th>Загрузка</th>
+                        <th>
+                            Месяц
+                            <span class="tooltip-text">Период прогноза (месяц и год).</span>
+                        </th>
+                        <th>
+                            Прогноз запросов
+                            <span class="tooltip-text">Ожидаемое количество поисковых запросов по данным Яндекс.Wordstat.</span>
+                        </th>
+                        <th>
+                            λ (клиентов/час)
+                            <span class="tooltip-text">Интенсивность входного потока: среднее число клиентов, приходящих в сервис за один час.</span>
+                        </th>
+                        <th>
+                            Опт. кол-во боксов
+                            <span class="tooltip-text">Минимальное количество рабочих постов, необходимое для обслуживания очереди со временем ожидания ≤ 15 мин.</span>
+                        </th>
+                        <th>
+                            Время ожидания
+                            <span class="tooltip-text">Среднее время, которое клиент проведет в очереди до начала обслуживания (минуты).</span>
+                        </th>
+                        <th>
+                            Коэфф. загрузки (ρ)
+                            <span class="tooltip-text">Доля времени, когда боксы заняты. Значение >80% указывает на риск образования очередей.</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -164,9 +378,23 @@
                         <td><strong>{{ r.month_name }}</strong></td>
                         <td>{{ r.forecast_requests }}</td>
                         <td>{{ r.lambda_per_hour }}</td>
-                        <td>{{ r.optimal_boxes }}</td>
-                        <td>{{ r.avg_wait_minutes }} мин</td>
-                        <td>{{ r.utilization_percent }}%</td>
+                        <td style="text-align: center;">{{ r.optimal_boxes }}</td>
+                        <td style="text-align: center;">
+                            <span class="badge 
+                                {% if r.avg_wait_minutes > 10 %}badge-danger
+                                {% elif r.avg_wait_minutes > 5 %}badge-warning
+                                {% else %}badge-success{% endif %}">
+                                {{ r.avg_wait_minutes }} мин
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge 
+                                {% if r.utilization_percent > 80 %}badge-danger
+                                {% elif r.utilization_percent > 50 %}badge-warning
+                                {% else %}badge-success{% endif %}">
+                                {{ r.utilization_percent }}%
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -175,11 +403,10 @@
     </div>
     
     <div class="footer">
-        <p>Дипломный проект | 2026</p>
+        <p>Автор: Екатерина Мочалова | Дипломный проект 2026</p>
     </div>
 
     <script>
-        // Код графика (оставь как был)
         const ctx = document.getElementById('forecastChart').getContext('2d');
         const labels = [{% for r in results %}'{{ r.month_name }}',{% endfor %}];
         const requests = [{% for r in results %}{{ r.forecast_requests }},{% endfor %}];
